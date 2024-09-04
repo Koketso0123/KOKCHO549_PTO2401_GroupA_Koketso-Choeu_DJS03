@@ -1,6 +1,8 @@
+PRESENTATION LINK: https://docs.google.com/document/d/1luoxpil6Ciiv_L6iJtblSvhKW_z0Xal9WKsYC0AK-xI/edit?usp=drivesdk
+
 # DJS03 Project Brief: Book Connect - Abstractions
 
-Dive into the delightful world of "Book Connect," where literary adventures await at your fingertips! Browse, explore, and uncover your next great read from a vast, vibrant collection. Whether you're a fan of thrilling mysteries, epic fantasies, or heartwarming romances, "Book Connect" brings the magic of books directly to you. Happy reading! 
+Dive into the delightful world of "Book Connect," where literary adventures await at your fingertips! Browse, explore, and uncover your next great read from a vast, vibrant collection. Whether you're a fan of thrilling mysteries, epic fantasies, or heartwarming romances, "Book Connect" brings the magic of books directly to you. Happy reading!
 
 The "Book Connect" project provides an opportunity for students to refine a fully functional version of an application. The focus of this project is to enhance the code's maintainability, extendibility, and readability by applying concepts of objects and functions for abstraction. This will not only streamline future modifications but also consolidate students' understanding of higher-level programming concepts, including documentation, Styleguides, and abstraction principles.
 
@@ -27,6 +29,7 @@ The "Book Connect" project provides an opportunity for students to refine a full
 #### Discussion and Reflection
 
 After completing the tasks, prepare a brief presentation for your coaching group on the following:
+
 - The rationale behind the refactoring decisions made, including the choice of objects and functions.
 - How abstraction has made the code more maintainable and extendable.
 - Any challenges faced during the refactoring process and how they were overcome.
