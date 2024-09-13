@@ -58,21 +58,38 @@ for (const [id, name] of Object.entries(authors)) {
 
 document.querySelector("[data-search-authors]").appendChild(authorsHtml);
 
-// CHANGES THEMES FROM LIGHT TO DARK
-function applyTheme(theme, darkColor, lightColor) {
-  document.querySelector("[data-settings-theme]").value = theme;
-  document.documentElement.style.setProperty("--color-dark", darkColor);
-  document.documentElement.style.setProperty("--color-light", lightColor);
+class BookList extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+
+    // Get the template from the HTML
+    const template = document.getElementById("book-list-template");
+    const templateContent = template.content.cloneNode(true);
+
+    this.shadowRoot.appendChild(templateContent);
+  }
+
+  connectedCallback() {
+    // CHANGES THEMES FROM LIGHT TO DARK
+    function applyTheme(theme, darkColor, lightColor) {
+      document.querySelector("[data-settings-theme]").value = theme;
+      document.documentElement.style.setProperty("--color-dark", darkColor);
+      document.documentElement.style.setProperty("--color-light", lightColor);
+    }
+
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      applyTheme("night", "255, 255, 255", "10, 10, 20");
+    } else {
+      applyTheme("day", "10, 10, 20", "255, 255, 255");
+    }
+  }
 }
 
-if (
-  window.matchMedia &&
-  window.matchMedia("(prefers-color-scheme: dark)").matches
-) {
-  applyTheme("night", "255, 255, 255", "10, 10, 20");
-} else {
-  applyTheme("day", "10, 10, 20", "255, 255, 255");
-}
+customElements.define("book-list", BookList);
 
 function updateButtonState(buttonElement, remainingBooks, booksPerPage) {
   const remaining = remainingBooks > 0 ? remainingBooks : 0;
@@ -87,34 +104,51 @@ const remainingBooks = matches.length - page * BOOKS_PER_PAGE;
 const listButton = document.querySelector("[data-list-button]");
 updateButtonState(listButton, remainingBooks, BOOKS_PER_PAGE);
 
-// a function to handle adding event listeners and toggling the open state of overlays.
-function toggleOverlay(
-  triggerSelector,
-  overlaySelector,
-  openState,
-  focusSelector = null
-) {
-  document.querySelector(triggerSelector).addEventListener("click", () => {
-    document.querySelector(overlaySelector).open = openState;
-    if (focusSelector) {
-      document.querySelector(focusSelector).focus();
+class togglingOverlay extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+
+    // Get the template from the HTML
+    const toggling = document.getElementById("overlay-buttons");
+    const toggleTemplateContent = template.content.cloneNode(true);
+
+    this.shadowRoot.appendChild(toggleTemplateContent);
+  }
+
+  connectedCallback() {
+    // a function to handle adding event listeners and toggling the open state of overlays.
+    function toggleOverlay(
+      triggerSelector,
+      overlaySelector,
+      openState,
+      focusSelector = null
+    ) {
+      document.querySelector(triggerSelector).addEventListener("click", () => {
+        document.querySelector(overlaySelector).open = openState;
+        if (focusSelector) {
+          document.querySelector(focusSelector).focus();
+        }
+      });
     }
-  });
+
+    // Cancel buttons to close overlays
+    toggleOverlay("[data-search-cancel]", "[data-search-overlay]", false);
+    toggleOverlay("[data-settings-cancel]", "[data-settings-overlay]", false);
+    toggleOverlay("[data-list-close]", "[data-list-active]", false);
+
+    // Header buttons to open overlays
+    toggleOverlay(
+      "[data-header-search]",
+      "[data-search-overlay]",
+      true,
+      "[data-search-title]"
+    );
+    toggleOverlay("[data-header-settings]", "[data-settings-overlay]", true);
+  }
 }
 
-// Cancel buttons to close overlays
-toggleOverlay("[data-search-cancel]", "[data-search-overlay]", false);
-toggleOverlay("[data-settings-cancel]", "[data-settings-overlay]", false);
-toggleOverlay("[data-list-close]", "[data-list-active]", false);
-
-// Header buttons to open overlays
-toggleOverlay(
-  "[data-header-search]",
-  "[data-search-overlay]",
-  true,
-  "[data-search-title]"
-);
-toggleOverlay("[data-header-settings]", "[data-settings-overlay]", true);
+customElements.define("overlay-buttons", togglingOverlay);
 
 document
   .querySelector("[data-settings-form]")
@@ -266,34 +300,51 @@ document
   .querySelector("[data-list-button]")
   .addEventListener("click", loadMoreBooks);
 
-//UPDATES BOOK ELEMENTS IF CLICKED
-function findActiveBook(event, books) {
-  const pathArray = Array.from(event.path || event.composedPath());
-  for (const node of pathArray) {
-    if (node?.dataset?.preview) {
-      return books.find((book) => book.id === node.dataset.preview) || null;
-    }
+class BookUpdate extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+
+    // Get the template from the HTML
+    const dialoge = document.getElementsByClassName("overlay");
+    const dialogeContent = dialoge.content.cloneNode(true);
+
+    this.shadowRoot.appendChild(dialogeContent);
   }
-  return null;
-}
 
-function updateBookDetails(activeBook) {
-  document.querySelector("[data-list-active]").open = true;
-  document.querySelector("[data-list-blur]").src = activeBook.image;
-  document.querySelector("[data-list-image]").src = activeBook.image;
-  document.querySelector("[data-list-title]").innerText = activeBook.title;
-  document.querySelector("[data-list-subtitle]").innerText = `${
-    authors[activeBook.author]
-  } (${new Date(activeBook.published).getFullYear()})`;
-  document.querySelector("[data-list-description]").innerText =
-    activeBook.description;
-}
-
-document
-  .querySelector("[data-list-items]")
-  .addEventListener("click", (event) => {
-    const activeBook = findActiveBook(event, books);
-    if (activeBook) {
-      updateBookDetails(activeBook);
+  connectedCallback() {
+    //UPDATES BOOK ELEMENTS IF CLICKED
+    function findActiveBook(event, books) {
+      const pathArray = Array.from(event.path || event.composedPath());
+      for (const node of pathArray) {
+        if (node?.dataset?.preview) {
+          return books.find((book) => book.id === node.dataset.preview) || null;
+        }
+      }
+      return null;
     }
-  });
+
+    function updateBookDetails(activeBook) {
+      document.querySelector("[data-list-active]").open = true;
+      document.querySelector("[data-list-blur]").src = activeBook.image;
+      document.querySelector("[data-list-image]").src = activeBook.image;
+      document.querySelector("[data-list-title]").innerText = activeBook.title;
+      document.querySelector("[data-list-subtitle]").innerText = `${
+        authors[activeBook.author]
+      } (${new Date(activeBook.published).getFullYear()})`;
+      document.querySelector("[data-list-description]").innerText =
+        activeBook.description;
+    }
+
+    document
+      .querySelector("[data-list-items]")
+      .addEventListener("click", (event) => {
+        const activeBook = findActiveBook(event, books);
+        if (activeBook) {
+          updateBookDetails(activeBook);
+        }
+      });
+  }
+}
+
+customElements.define("overlay", BookUpdate);

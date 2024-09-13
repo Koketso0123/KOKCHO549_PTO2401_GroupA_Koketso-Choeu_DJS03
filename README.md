@@ -1,4 +1,4 @@
-PRESENTATION LINK: https://docs.google.com/document/d/1luoxpil6Ciiv_L6iJtblSvhKW_z0Xal9WKsYC0AK-xI/edit?usp=drivesdk
+PRESENTATION LINK: https://docs.google.com/document/d/1Xgy8dGYfNMlgA1kRcJwCrJmaE3SO90PciP-SkywaieY/edit?usp=sharing
 
 # DJS03 Project Brief: Book Connect - Abstractions
 
